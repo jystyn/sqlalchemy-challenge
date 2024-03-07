@@ -1,12 +1,9 @@
 # Import the dependencies.
 import numpy as np
-# import datetime as dt
-
 import sqlalchemy
 from sqlalchemy.ext.automap import automap_base
 from sqlalchemy.orm import Session
 from sqlalchemy import create_engine, func
-
 from flask import Flask, jsonify
 
 #################################################
@@ -18,7 +15,7 @@ engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 Base = automap_base()
 
 # reflect the tables
-Base.prepare(engine, reflect=True)
+Base.prepare(autoload_with=engine)
 
 # Save references to each table
 Measurement = Base.classes.measurement
@@ -78,28 +75,12 @@ def stations():
     session = Session(engine)
 
     """Return all station data"""
-    results = session.query(
-        Station.id, 
-        Station.station, 
-        Station.name,
-        Station.latitude,
-        Station.longitude,
-        Station.elevation
-    ).all()
+    results = session.query(Station.station,Station.name).all()
 
     session.close()
 
-    # Convert list to dictionary
-    all_stations = []
-    for id,station,name,latitude, longitude, elevation in results:
-        station_dict = {}
-        station_dict["id"] = id
-        station_dict["station"] = station
-        station_dict["name"] = name
-        station_dict["latitude"] = latitude
-        station_dict["longitude"] = longitude
-        station_dict["elevation"] = elevation
-        all_stations.append(station_dict)
+    all_stations = list(np.ravel(results))
+
     return jsonify(all_stations)
     
 @app.route("/api/v1.0/tobs")
@@ -117,11 +98,4 @@ def tobs():
 
     session.close()
 
-    # Convert list to dictionary
-    all_tobs = []
-    for date,tobs in results:
-        tobs_dict = {}
-        tobs_dict["date"] = date
-        tobs_dict["tobs"] = tobs
-        all_tobs.append(tobs_dict)
-    return jsonify(all_tobs)
+    return jsonify(results)
