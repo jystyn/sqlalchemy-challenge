@@ -111,8 +111,8 @@ def tobs():
     results = session.query(
         Measurement.date, 
         Measurement.tobs).\
-    filter(Measurement.date >= '0000-00-00').\
-    filter(Measurement.station=='USC55378008').\
+    filter(Measurement.date >= '2016-08-23').\
+    filter(Measurement.station=='USC00519281').\
     order_by(Measurement.date).all()
 
     session.close()
